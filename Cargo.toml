@@ -1,0 +1,10 @@
+[workspace]
+default-members = ["datasets"]
+members = ["models", "datasets"]
+resolver = "2"
+
+[workspace.dependencies]
+sea-orm = { version = "0.12.14", features = [
+    "runtime-tokio-rustls",
+    "sqlx-mysql",
+] }
