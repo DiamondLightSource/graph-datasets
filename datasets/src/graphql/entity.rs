@@ -3,7 +3,8 @@ use chrono::{DateTime, Utc};
 
 use models::data_collection;
 
-#[derive(Debug, SimpleObject)]
+#[derive(Clone, Debug, PartialEq, SimpleObject)]
+#[graphql(name = "datasets")]
 pub struct DataCollection {
     /// An opaque unique identifier for the data collection
     pub data_collection_id: u32,
@@ -41,6 +42,12 @@ pub struct DataCollection {
     pub image_suffix: Option<String>,
     /// Image file extension
     pub image_prefix: Option<String>, 
+}
+
+#[derive(SimpleObject)]
+#[graphql(name = "sessions", complex)]
+pub struct Session {
+    pub session_id: i32,
 }
 
 impl From<data_collection::Model> for DataCollection {
