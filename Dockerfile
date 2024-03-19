@@ -6,22 +6,22 @@ WORKDIR /app
 
 COPY Cargo.toml Cargo.lock .
 COPY models/Cargo.toml models/Cargo.toml
-COPY sessions/Cargo.toml sessions/Cargo.toml
+COPY datasets/Cargo.toml datasets/Cargo.toml
 
 RUN mkdir models/src \
     && touch models/src/lib.rs \
-    && mkdir sessions/src \
-    && echo "fn main() {}" > sessions/src/main.rs \
+    && mkdir datasets/src \
+    && echo "fn main() {}" > datasets/src/main.rs \
     && cargo build --release
 
 COPY . /app
 
 RUN touch models/src/lib.rs \
-    && touch sessions/src/main.rs \
+    && touch datasets/src/main.rs \
     && cargo build --release
 
 FROM gcr.io/distroless/cc AS deploy
 
-COPY --from=build /app/target/release/sessions /sessions
+COPY --from=build /app/target/release/datasets /datasets
 
-ENTRYPOINT ["/sessions"]
+ENTRYPOINT ["/datasets"]
