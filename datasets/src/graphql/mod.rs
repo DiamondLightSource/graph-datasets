@@ -37,21 +37,9 @@ impl Session {
 
 #[Object]
 impl Query {
-    /// Retrieves all datasets collected during Sessions
-    async fn datasets(
-        &self,
-        ctx: &Context<'_>,
-    ) -> Result<Vec<DataCollection>, async_graphql::Error> {
-        let database = ctx.data::<DatabaseConnection>()?;
-        Ok(data_collection::Entity::find()
-            .all(database)
-            .await?
-            .into_iter()
-            .map(DataCollection::from)
-            .collect())
-    }
-    /// Retrieves a single dataset collected during Sessions
-    async fn dataset(
+    /// Reference dataset resolver for the router
+    #[graphql(entity)]
+    async fn router_dataset(
         &self,
         ctx: &Context<'_>,
         data_collection_id: u32,
@@ -61,16 +49,6 @@ impl Query {
             .one(database)
             .await?
             .map(DataCollection::from))
-    }
-
-    /// Reference dataset resolver for the router
-    #[graphql(entity)]
-    async fn router_dataset(
-        &self,
-        ctx: &Context<'_>,
-        data_collection_id: u32,
-    ) -> Result<Option<DataCollection>, async_graphql::Error> {
-        self.dataset(ctx, data_collection_id).await
     }
 
     /// Reference sessions resolver for the router

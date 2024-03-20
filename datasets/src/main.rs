@@ -3,6 +3,8 @@
 #![warn(missing_docs)]
 #![warn(clippy::missing_docs_in_private_items)]
 
+/// Metadata about the crate, courtesy of [`built`]
+mod built_info;
 /// GraphQL resolvers
 mod graphql;
 
@@ -11,15 +13,18 @@ use async_graphql_axum::{GraphQL, GraphQLSubscription};
 use axum::{response::Html, routing::get, Router};
 use clap::Parser;
 use graphql::{root_schema_builder, RootSchema};
+use opentelemetry_otlp::WithExportConfig;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr, TransactionError};
 use std::{
     fs::File,
     io::Write,
     net::{Ipv4Addr, SocketAddr, SocketAddrV4},
     path::PathBuf,
+    time::Duration,
 };
 use tokio::net::TcpListener;
 use tracing::instrument;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use url::Url;
 
 /// A service providing Beamline ISPyB data collected during sessions
@@ -95,6 +100,67 @@ async fn serve(router: Router, port: u16) -> Result<(), std::io::Error> {
     Ok(())
 }
 
+/// Sets up Logging & Tracing using opentelemetry if available
+fn setup_telemetry(
+    log_level: tracing::Level,
+    otel_collector_url: Option<Url>,
+) -> Result<(), anyhow::Error> {
+    let level_filter = tracing_subscriber::filter::LevelFilter::from_level(log_level);
+    let log_layer = tracing_subscriber::fmt::layer();
+    let service_name_resource = opentelemetry_sdk::Resource::new(vec![
+        opentelemetry::KeyValue::new(
+            opentelemetry_semantic_conventions::resource::SERVICE_NAME,
+            built_info::PKG_NAME,
+        ),
+        opentelemetry::KeyValue::new(
+            opentelemetry_semantic_conventions::resource::SERVICE_VERSION,
+            built_info::PKG_VERSION,
+        ),
+    ]);
+    let (metrics_layer, tracing_layer) = if let Some(otel_collector_url) = otel_collector_url {
+        (
+            Some(tracing_opentelemetry::MetricsLayer::new(
+                opentelemetry_otlp::new_pipeline()
+                    .metrics(opentelemetry_sdk::runtime::Tokio)
+                    .with_exporter(
+                        opentelemetry_otlp::new_exporter()
+                            .tonic()
+                            .with_endpoint(otel_collector_url.clone()),
+                    )
+                    .with_resource(service_name_resource.clone())
+                    .with_period(Duration::from_secs(10))
+                    .build()?,
+            )),
+            Some(
+                tracing_opentelemetry::layer().with_tracer(
+                    opentelemetry_otlp::new_pipeline()
+                        .tracing()
+                        .with_exporter(
+                            opentelemetry_otlp::new_exporter()
+                                .tonic()
+                                .with_endpoint(otel_collector_url),
+                        )
+                        .with_trace_config(
+                            opentelemetry_sdk::trace::config().with_resource(service_name_resource),
+                        )
+                        .install_batch(opentelemetry_sdk::runtime::Tokio)?,
+                ),
+            ),
+        )
+    } else {
+        (None, None)
+    };
+
+    tracing_subscriber::Registry::default()
+        .with(level_filter)
+        .with(log_layer)
+        .with(metrics_layer)
+        .with(tracing_layer)
+        .init();
+
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
@@ -102,6 +168,7 @@ async fn main() {
 
     match args {
         Cli::Serve(args) => {
+            setup_telemetry(args.log_level, args.otel_collector_url).unwrap();
             let database = setup_database(args.database_url).await.unwrap();
             let schema = root_schema_builder()
                 .extension(Tracing)
