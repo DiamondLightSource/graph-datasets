@@ -59,6 +59,7 @@ jobs:
             --no-deps
             --all-targets
             --all-features
+            -- 
             --deny warnings
 
   test:
