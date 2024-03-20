@@ -53,6 +53,7 @@ struct ServeArgs {
 #[derive(Debug, Parser)]
 struct SchemaArgs {
     /// The path to write the schema to, if not set the schema will be printed to stdout
+    #[arg(short, long)]
     path: Option<PathBuf>,
 }
 
