@@ -37,21 +37,7 @@ impl Session {
 
 #[Object]
 impl Query {
-    /// Reference dataset resolver for the router
-    #[graphql(entity)]
-    async fn router_dataset(
-        &self,
-        ctx: &Context<'_>,
-        data_collection_id: u32,
-    ) -> Result<Option<DataCollection>, async_graphql::Error> {
-        let database = ctx.data::<DatabaseConnection>()?;
-        Ok(data_collection::Entity::find_by_id(data_collection_id)
-            .one(database)
-            .await?
-            .map(DataCollection::from))
-    }
-
-    /// Reference sessions resolver for the router
+    // /// Reference sessions resolver for the router
     #[graphql(entity)]
     async fn router_sessions(&self, id: i32) -> Session {
         Session { id }

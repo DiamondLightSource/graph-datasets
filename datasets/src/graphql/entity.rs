@@ -5,10 +5,10 @@ use models::data_collection;
 
 /// Represents data collected during the sessions
 #[derive(Clone, Debug, PartialEq, SimpleObject)]
-#[graphql(name = "Datasets")]
+#[graphql(name = "Datasets", unresolvable)]
 pub struct DataCollection {
     /// An opaque unique identifier for the data collection
-    pub data_collection_id: u32,
+    pub id: u32,
     /// The date time and which data collection began
     pub start_time: Option<DateTime<Utc>>,
     /// The date time and which data collection ended
@@ -54,7 +54,7 @@ pub struct Session {
 impl From<data_collection::Model> for DataCollection {
     fn from(values: data_collection::Model) -> Self {
         Self {
-            data_collection_id: values.data_collection_id,
+            id: values.data_collection_id,
             start_time: values.start_time.map(|time| time.and_utc()),
             end_time: values.end_time.map(|time| time.and_utc()),
             number_of_images: values.number_of_images,
