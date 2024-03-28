@@ -1,0 +1,15 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: ispyb-datasets
+  namespace: graph
+spec:
+  encryptedData:
+    password: AgAkXGCnlnHwdWPkvrDVtkmDaH8okeD4JUQjVjCUttD1KqCaHFuELsfGAU3OrV6egDxZr5N31uhPqnWr3cvqLfBdzqW/Q4gOUGRMqZFx9Lazm+EQfNKieslVqDEuj74/fgdLoUesecO/BD1UykwAKHsJ7Q2YfxamnaMiZRdKPyBqPHPHGYG31LiaS0jHlUkom+KF6P8e8Doe620yEBjbINgOnimBWlsnJ0xDLplZbh8tqajl6BgGUY+1qtA/55HcDcXPbmtiMaC+p85MuXwTN/V1hNGgz5+B9u1Opmush9g247wt7XCD7dgVrCixmJlmAXSNGfNkGERKHG5XK9Lp6mKx84bFVTZNqjyYxtEeNGc96nG8PqH1b54bBKaslgljPCUCOj/PoRrDklrYFVMVv+gs5UpT8EC7RZf7dtjNQbZ71/WOtJO85V0ULnCUgp+gnkjN0RKo+tFFpauiQLDewcJgFUSUnpG5WEFrTZb91Cm46vNZyODc5mRBD1A4KJxye+tS7/K63Kib5xDHhh48PEAoIHYyHGreXAvSmGZ9UYtk1aMAMu9O2AgZalq4s0mPqeGqRHOb5z2cFH/c534zNs3znSNW2G2Ry8e03xt0iAFIwNO7CvHk7vzfT4nRCLCYpn+ppCEub58O6mZ6IGK0dND0YbjD+gaZ8+DCpazVEJ3+b+ZOY31SP9r2T+bBzdIn6JX2ht7tq4MzaklL6cvx/VtS
+  template:
+    metadata:
+      creationTimestamp: null
+      name: ispyb
+      namespace: graph
+
