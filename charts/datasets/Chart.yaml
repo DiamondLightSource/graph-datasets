@@ -1,0 +1,11 @@
+apiVersion: v2
+name: datasets
+description: A deployment providing data collected during beamline session as part of the graph federation
+type: application
+
+version: 0.1.0
+
+dependencies:
+  - name: datasets
+    version: 0.1.0
+    condition: datasets.enabled
