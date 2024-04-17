@@ -23,7 +23,10 @@ pub struct Query;
 #[ComplexObject]
 impl Session {
     /// Fetches all the data collected during a session
-    async fn datasets(&self, ctx: &Context<'_>) -> async_graphql::Result<Vec<DataCollection>> {
+    async fn data_collection(
+        &self,
+        ctx: &Context<'_>,
+    ) -> async_graphql::Result<Vec<DataCollection>> {
         let database = ctx.data::<DatabaseConnection>()?;
         Ok(data_collection::Entity::find()
             .filter(data_collection::Column::Sessionid.eq(self.id))

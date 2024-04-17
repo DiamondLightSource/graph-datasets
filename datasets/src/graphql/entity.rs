@@ -5,7 +5,7 @@ use models::data_collection;
 
 /// Represents data collected during the sessions
 #[derive(Clone, Debug, PartialEq, SimpleObject)]
-#[graphql(name = "Datasets", unresolvable)]
+#[graphql(name = "DataCollection", unresolvable)]
 pub struct DataCollection {
     /// An opaque unique identifier for the data collection
     pub id: u32,
