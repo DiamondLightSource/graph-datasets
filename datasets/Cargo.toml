@@ -6,18 +6,18 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.81"
+anyhow = "1.0.82"
 async-graphql = { version = "7.0.2", default-features = false, features = [
     "chrono",
     "graphiql",
     "tracing",
 ] }
 async-graphql-axum = { version = "7.0.2" }
-axum = { version = "0.7.4", features = ["ws"] }
+axum = { version = "0.7.5", features = ["ws"] }
 axum-extra = { version = "0.9.3", features = ["typed-header"] }
 axum-tracing-opentelemetry = { version = "0.18.0" }
-chrono = { version = "0.4.35" }
-clap = { version = "4.5.2", features = ["derive", "env"] }
+chrono = { version = "0.4.38" }
+clap = { version = "4.5.4", features = ["derive", "env"] }
 dotenvy = { version = "0.15.7" }
 models = { path = "../models" }
 opentelemetry = { version = "0.22.0", features = ["metrics"] }
@@ -32,4 +32,4 @@ tracing-subscriber = { version = "0.3.18" }
 url = { version = "2.5.0" }
 
 [build-dependencies]
-built = { version = "0.7.1" }
+built = { version = "0.7.2" }
