@@ -28,7 +28,7 @@ impl Session {
         &self,
         ctx: &Context<'_>,
         after: Option<String>,
-        first: Option<u64>,
+        first: u64,
     ) -> async_graphql::Result<
         Connection<OpaqueCursor<u32>, DataCollection, EmptyFields, EmptyFields>,
     > {
@@ -44,13 +44,9 @@ impl Session {
             }
         }
 
-        let limit = match first {
-            Some(first) => first + 1,
-            None => usize::MAX as u64,
-        };
-
+        let limit = first.min(100);
         let mut data_collections = query
-            .limit(limit)
+            .limit(limit + 1)
             .all(database)
             .await?
             .into_iter()
@@ -58,13 +54,7 @@ impl Session {
             .collect::<Vec<_>>();
 
         let mut has_next_page = false;
-
-        if data_collections.len()
-            > first
-                .unwrap_or(usize::MAX.try_into().unwrap())
-                .try_into()
-                .unwrap()
-        {
+        if data_collections.len() > limit as usize {
             has_next_page = true;
             data_collections.pop();
         }
