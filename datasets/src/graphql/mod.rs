@@ -28,58 +28,54 @@ impl Session {
         &self,
         ctx: &Context<'_>,
         after: Option<String>,
-        before: Option<String>,
-        first: Option<i32>,
-        last: Option<i32>,
-    ) -> async_graphql::Result<Connection<usize, DataCollection, EmptyFields, EmptyFields>> {
+        first: Option<u64>,
+    ) -> async_graphql::Result<
+        Connection<OpaqueCursor<u32>, DataCollection, EmptyFields, EmptyFields>,
+    > {
         let database = ctx.data::<DatabaseConnection>()?;
-        let mut start: usize = after
-            .map(|after| after.parse::<usize>().ok().unwrap_or(0))
-            .unwrap_or(0);
-        let mut end: usize = before
-            .map(|before| before.parse::<usize>().ok().unwrap_or(usize::MAX))
-            .unwrap_or(usize::MAX);
+        let mut query =
+            data_collection::Entity::find().filter(data_collection::Column::Sessionid.eq(self.id));
 
-        if let Some(first) = first {
-            end = (start + first as usize).min(end);
-        }
-        if let Some(last) = last {
-            start = if last as usize > end - start {
-                end
+        if let Some(after) = after {
+            if let Ok(cursor_value) = OpaqueCursor::<i32>::decode_cursor(&after) {
+                query = query.filter(data_collection::Column::DataCollectionId.gt(cursor_value.0));
             } else {
-                end - last as usize
-            };
+                return Err(async_graphql::Error::new("Cursor not valid"));
+            }
         }
 
-        let limit: u64 = match end.checked_sub(start) {
-            Some(diff) => diff as u64,
-            None => return Err(async_graphql::Error::new("Pagination limit overflow")),
+        let limit = match first {
+            Some(first) => first + 1,
+            None => usize::MAX as u64,
         };
 
-        let data_collection_entities = data_collection::Entity::find()
-            .filter(data_collection::Column::Sessionid.eq(self.id))
+        let mut data_collections = query
             .limit(limit)
-            .offset(start as u64)
             .all(database)
-            .await?;
-
-        let data_collections: Vec<DataCollection> = data_collection_entities
+            .await?
             .into_iter()
             .map(DataCollection::from)
             .collect::<Vec<_>>();
 
-        let mut connection: Connection<usize, DataCollection> =
-            Connection::new(start > 0, end < usize::MAX);
+        let mut has_next_page = false;
+
+        if data_collections.len()
+            > first
+                .unwrap_or(usize::MAX.try_into().unwrap())
+                .try_into()
+                .unwrap()
+        {
+            has_next_page = true;
+            data_collections.pop();
+        }
+
+        let mut connection = Connection::new(false, has_next_page);
         connection
             .edges
-            .extend(
-                data_collections
-                    .into_iter()
-                    .enumerate()
-                    .map(|(index, data_collection)| {
-                        Edge::with_additional_fields(index + start, data_collection, EmptyFields)
-                    }),
-            );
+            .extend(data_collections.into_iter().map(|data_collection| {
+                let cursor = OpaqueCursor(data_collection.id);
+                Edge::with_additional_fields(cursor, data_collection, EmptyFields)
+            }));
 
         Ok(connection)
     }
