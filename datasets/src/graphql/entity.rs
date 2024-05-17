@@ -41,6 +41,22 @@ pub struct DataCollection {
     pub image_suffix: Option<String>,
     /// Image file extension
     pub image_prefix: Option<String>,
+    /// Axis overlap
+    pub overlap: Option<f32>,
+    /// Axis start
+    pub axis_start: Option<f32>,
+    /// Axis end
+    pub axis_end: Option<f32>,
+    /// Axis range
+    pub axis_range: Option<f32>,
+    /// Resolution
+    pub resolution: Option<f32>,
+    /// Flux
+    pub flux: Option<f64>,
+    /// Transmission
+    pub transmission: Option<f32>,
+    /// Type of experiment
+    pub experiment_type: Option<String>,
 }
 
 /// Extended subraph from session service/subgraph
@@ -71,6 +87,14 @@ impl From<data_collection::Model> for DataCollection {
             image_directory: values.image_directory,
             image_suffix: values.image_suffix,
             image_prefix: values.image_prefix,
+            overlap: values.overlap,
+            axis_start: values.axis_start,
+            axis_end: values.axis_end,
+            axis_range: values.axis_range,
+            resolution: values.resolution,
+            flux: values.flux,
+            transmission: values.transmission,
+            experiment_type: values.experimenttype,
         }
     }
 }

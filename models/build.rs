@@ -18,11 +18,15 @@ struct Table<'a> {
 const TABLES_SPECS: &[&Table] = &[&Table {
     name: "DataCollection",
     columns: &[
+        "axisStart",
+        "axisEnd",
+        "axisRange",
         "dataCollectionId",
         "SESSIONID",
         "dataCollectionGroupId",
         "wavelength",
         "exposureTime",
+        "flux",
         "imageDirectory",
         "imageSuffix",
         "imagePrefix",
@@ -32,12 +36,17 @@ const TABLES_SPECS: &[&Table] = &[&Table {
         "processedDataFile",
         "xBeam",
         "yBeam",
+        "resolution",
+        "resolution",
+        "experimenttype",
+        "overlap",
         "detectorDistance",
         "beamSizeAtSampleX",
         "beamSizeAtSampleY",
         "detectorId",
         "startTime",
         "endTime",
+        "transmission",
     ],
 }];
 
